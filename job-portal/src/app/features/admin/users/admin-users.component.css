@@ -1,0 +1,27 @@
+.modal-backdrop-custom {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 9990;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+
+.edit-modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  width: 460px;
+  max-width: 95%;
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn .25s ease;
+}
+
+.btn-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary); transition: var(--transition);
+}
+.btn-icon:hover { background: var(--danger); color: #fff; border-color: var(--danger); }

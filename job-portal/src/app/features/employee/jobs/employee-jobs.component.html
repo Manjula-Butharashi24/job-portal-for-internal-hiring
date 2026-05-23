@@ -1,0 +1,175 @@
+<div class="page-header">
+  <div>
+    <div class="breadcrumb-custom">
+      <a routerLink="/employee/dashboard">Dashboard</a><span>/</span>
+      <span class="active">Browse Jobs</span>
+    </div>
+    <h1 class="page-title">Find Your Next Role</h1>
+    <p class="page-subtitle">{{ filtered.length }} active positions available</p>
+  </div>
+</div>
+
+<!-- Search -->
+<div class="global-search">
+  <i class="bi bi-search"></i>
+  <input class="form-control" [(ngModel)]="search" (ngModelChange)="applyFilters()"
+    placeholder="Search by title, skill, department..." style="font-size:15px; padding:14px 14px 14px 44px">
+</div>
+
+<div class="jobs-layout">
+  <!-- Filters sidebar -->
+  <aside class="filter-panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h6 style="font-weight:700;margin:0">Filters</h6>
+      <button class="btn-text-sm" (click)="resetFilters()">Reset all</button>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Department</div>
+      <div class="filter-opts">
+        <label class="filter-opt" *ngFor="let d of departments">
+          <input type="radio" name="dept" [value]="d" [(ngModel)]="filterDept" (ngModelChange)="applyFilters()">
+          <span>{{ d }}</span>
+        </label>
+        <label class="filter-opt">
+          <input type="radio" name="dept" value="" [(ngModel)]="filterDept" (ngModelChange)="applyFilters()">
+          <span>All</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Location</div>
+      <div class="filter-opts">
+        <label class="filter-opt" *ngFor="let l of locations">
+          <input type="radio" name="loc" [value]="l" [(ngModel)]="filterLoc" (ngModelChange)="applyFilters()">
+          <span>{{ l }}</span>
+        </label>
+        <label class="filter-opt">
+          <input type="radio" name="loc" value="" [(ngModel)]="filterLoc" (ngModelChange)="applyFilters()">
+          <span>All</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Type</div>
+      <div class="filter-opts">
+        <label class="filter-opt" *ngFor="let t of ['full-time','part-time','contract','remote']">
+          <input type="radio" name="type" [value]="t" [(ngModel)]="filterType" (ngModelChange)="applyFilters()">
+          <span>{{ t | titlecase }}</span>
+        </label>
+        <label class="filter-opt">
+          <input type="radio" name="type" value="" [(ngModel)]="filterType" (ngModelChange)="applyFilters()">
+          <span>All</span>
+        </label>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Job Grid -->
+  <div class="jobs-main">
+    <div *ngIf="loading" style="text-align:center;padding:60px">
+      <div class="spinner" style="margin:0 auto"></div>
+    </div>
+
+    <div *ngIf="!loading && filtered.length===0" class="empty-state">
+      <i class="bi bi-search"></i>
+      <h5>No jobs found</h5>
+      <p>Try different keywords or clear the filters</p>
+      <button class="btn btn-primary btn-sm" style="margin-top:12px" (click)="resetFilters()">Clear Filters</button>
+    </div>
+
+    <div class="jobs-grid" *ngIf="!loading">
+      <div *ngFor="let j of paginated" class="job-card" (click)="openDetail(j)">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+          <div class="company-logo">{{ j.department[0] }}</div>
+          <span class="badge-status badge-active">{{ j.type }}</span>
+        </div>
+        <div class="job-title">{{ j.title }}</div>
+        <div class="job-meta">
+          <span><i class="bi bi-building"></i> {{ j.department }}</span>
+          <span><i class="bi bi-geo-alt"></i> {{ j.location }}</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+          {{ j.description }}
+        </p>
+        <div class="job-skills">
+          <span class="skill-pill" *ngFor="let s of j.skills.slice(0,3)">{{ s }}</span>
+          <span class="skill-pill" *ngIf="j.skills.length > 3" style="background:var(--border);color:var(--text-secondary)">+{{ j.skills.length-3 }}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border-light)">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--primary)">{{ j.salary || 'Competitive' }}</div>
+            <div style="font-size:11px;color:var(--text-muted)">{{ j.applicationsCount }} applicants</div>
+          </div>
+          <button class="btn btn-sm"
+            [class.btn-primary]="!hasApplied(j.id)"
+            [class.btn-ghost]="hasApplied(j.id)"
+            [disabled]="hasApplied(j.id)"
+            (click)="$event.stopPropagation(); applyJob(j)">
+            {{ hasApplied(j.id) ? 'Applied ✓' : 'Quick Apply' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" style="display:flex;justify-content:center;margin-top:24px">
+      <div class="pagination-custom">
+        <button class="page-btn" (click)="page=page-1" [disabled]="page===1"><i class="bi bi-chevron-left"></i></button>
+        <button class="page-btn" *ngFor="let p of pages" [class.active]="page===p" (click)="page=p">{{ p }}</button>
+        <button class="page-btn" (click)="page=page+1" [disabled]="page===totalPages"><i class="bi bi-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Job Detail Drawer -->
+<div class="modal-backdrop-custom" *ngIf="selectedJob" (click)="closeDetail()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-panel-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="company-logo" style="width:40px;height:40px;font-size:16px">{{ selectedJob.department[0] }}</div>
+        <div>
+          <h5 style="margin:0">{{ selectedJob.title }}</h5>
+          <div style="font-size:12px;color:var(--text-muted)">{{ selectedJob.department }} · {{ selectedJob.location }}</div>
+        </div>
+      </div>
+      <button class="btn-icon" (click)="closeDetail()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-panel-body">
+      <!-- Meta row -->
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;padding:16px;background:var(--bg);border-radius:var(--radius-md)">
+        <div class="detail-meta-item"><i class="bi bi-geo-alt text-primary"></i><span>{{ selectedJob.location }}</span></div>
+        <div class="detail-meta-item"><i class="bi bi-briefcase text-primary"></i><span>{{ selectedJob.type }}</span></div>
+        <div class="detail-meta-item"><i class="bi bi-currency-dollar text-primary"></i><span>{{ selectedJob.salary || 'Competitive' }}</span></div>
+        <div class="detail-meta-item"><i class="bi bi-people text-primary"></i><span>{{ selectedJob.applicationsCount }} applied</span></div>
+      </div>
+
+      <h6 style="font-weight:700;margin-bottom:10px">About This Role</h6>
+      <p style="color:var(--text-secondary);font-size:14px;line-height:1.7;margin-bottom:20px">{{ selectedJob.description }}</p>
+
+      <h6 style="font-weight:700;margin-bottom:10px">Requirements</h6>
+      <ul style="color:var(--text-secondary);font-size:14px;padding-left:20px;margin-bottom:20px;line-height:2">
+        <li *ngFor="let r of selectedJob.requirements.split('\n')">{{ r }}</li>
+      </ul>
+
+      <h6 style="font-weight:700;margin-bottom:10px">Skills Required</h6>
+      <div class="job-skills" style="margin-bottom:20px">
+        <span class="skill-pill" *ngFor="let s of selectedJob.skills">{{ s }}</span>
+      </div>
+    </div>
+    <div style="padding:20px 24px;border-top:1px solid var(--border);display:flex;gap:10px">
+      <button class="btn btn-ghost btn-md" (click)="closeDetail()">Close</button>
+      <button class="btn btn-md" style="flex:1"
+        [class.btn-primary]="!hasApplied(selectedJob.id)"
+        [class.btn-ghost]="hasApplied(selectedJob.id)"
+        [disabled]="hasApplied(selectedJob.id) || applying"
+        (click)="applyJob(selectedJob)">
+        <span class="spinner-border spinner-border-sm me-1" *ngIf="applying"></span>
+        {{ hasApplied(selectedJob.id) ? '✓ Already Applied' : applying ? 'Applying...' : 'Apply Now' }}
+      </button>
+    </div>
+  </div>
+</div>

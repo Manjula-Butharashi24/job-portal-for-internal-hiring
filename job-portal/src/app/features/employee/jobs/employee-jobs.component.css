@@ -1,0 +1,84 @@
+.global-search {
+  position: relative;
+  margin-bottom: 24px;
+}
+.global-search i {
+  position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%); color: var(--text-muted); font-size: 18px;
+}
+
+.jobs-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .jobs-layout { grid-template-columns: 1fr; }
+}
+
+.filter-opts { display: flex; flex-direction: column; gap: 8px; }
+
+.filter-opt {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text-secondary); cursor: pointer;
+}
+
+.filter-opt input[type=radio] { accent-color: var(--primary); }
+
+.btn-text-sm {
+  background: none; border: none; color: var(--primary);
+  font-size: 12px; cursor: pointer; font-family: var(--font-sans);
+}
+
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.detail-meta-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+}
+
+.detail-meta-item i { color: var(--primary); }
+
+/* Reuse modal panel from hr-jobs */
+.modal-backdrop-custom {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 9990;
+  display: flex; align-items: stretch; justify-content: flex-end;
+  backdrop-filter: blur(3px);
+}
+
+.modal-panel {
+  width: 560px; max-width: 100%;
+  background: var(--bg-card);
+  height: 100vh;
+  display: flex; flex-direction: column;
+  box-shadow: -8px 0 40px rgba(0,0,0,.15);
+  animation: slidePanel 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes slidePanel {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.modal-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+
+.modal-panel-body { flex: 1; overflow-y: auto; padding: 24px; }
+
+.btn-icon {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary); transition: var(--transition);
+}
+.btn-icon:hover { background: var(--danger); color: #fff; border-color: var(--danger); }

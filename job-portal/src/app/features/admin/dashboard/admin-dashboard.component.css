@@ -1,0 +1,11 @@
+.health-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: var(--transition);
+}
+.health-card:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}

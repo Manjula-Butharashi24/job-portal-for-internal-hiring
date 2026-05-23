@@ -1,0 +1,113 @@
+<!-- Welcome Banner -->
+<div class="welcome-banner">
+  <div class="welcome-left">
+    <div class="welcome-avatar">{{ initials }}</div>
+    <div>
+      <p class="welcome-greeting">{{ greeting }},</p>
+      <h2 class="welcome-name">{{ user.name }} 👋</h2>
+      <p class="welcome-sub">{{ department }} · {{ location }}</p>
+    </div>
+  </div>
+  <a routerLink="/employee/jobs"
+     class="btn btn-md"
+     style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;backdrop-filter:blur(8px)">
+    <i class="bi bi-search"></i> Browse Jobs
+  </a>
+</div>
+
+<!-- Stats -->
+<div class="grid-4" style="margin-bottom:24px">
+  <div class="stat-card">
+    <div class="stat-icon"><i class="bi bi-send"></i></div>
+    <div class="stat-value">{{ appStats.total }}</div>
+    <div class="stat-label">Applications</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="stat-icon warning"><i class="bi bi-bookmark-star"></i></div>
+    <div class="stat-value">{{ appStats.shortlisted }}</div>
+    <div class="stat-label">Shortlisted</div>
+  </div>
+  <div class="stat-card info">
+    <div class="stat-icon info"><i class="bi bi-camera-video"></i></div>
+    <div class="stat-value">{{ appStats.interview }}</div>
+    <div class="stat-label">Interviews</div>
+  </div>
+  <div class="stat-card success">
+    <div class="stat-icon success"><i class="bi bi-trophy"></i></div>
+    <div class="stat-value">{{ appStats.hired }}</div>
+    <div class="stat-label">Offers</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Recommended Jobs -->
+  <div class="card">
+    <div class="card-header-custom">
+      <div>
+        <h6 style="font-weight:700;margin:0">Recommended for You</h6>
+        <p style="font-size:12px;color:var(--text-muted);margin:2px 0 0">Based on your skills</p>
+      </div>
+      <a routerLink="/employee/jobs" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <div class="card-body-custom" style="display:flex;flex-direction:column;gap:12px">
+      <div *ngIf="loading" style="text-align:center;padding:20px">
+        <div class="spinner" style="margin:0 auto"></div>
+      </div>
+      <div *ngFor="let j of recommendedJobs" class="rec-job-card">
+        <div class="rec-job-icon"><i class="bi bi-briefcase"></i></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13px;margin-bottom:2px">{{ j.title }}</div>
+          <div style="font-size:12px;color:var(--text-muted)">
+            <i class="bi bi-geo-alt"></i> {{ j.location }} &nbsp;·&nbsp; {{ j.type }}
+          </div>
+          <div class="job-skills" style="margin-top:6px">
+            <span class="skill-pill" *ngFor="let s of j.skills.slice(0,3)">{{ s }}</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">
+            {{ j.salary || 'Competitive' }}
+          </div>
+          <a routerLink="/employee/jobs" class="btn btn-outline-primary btn-sm">Apply</a>
+        </div>
+      </div>
+      <div *ngIf="!loading && recommendedJobs.length === 0" class="empty-state" style="padding:24px">
+        <i class="bi bi-briefcase"></i>
+        <p>No recommendations yet. Add skills to your profile!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Applications -->
+  <div class="card">
+    <div class="card-header-custom">
+      <h6 style="font-weight:700;margin:0">My Applications</h6>
+      <a routerLink="/employee/applications" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+
+    <div class="card-body-custom" *ngIf="myApps.length > 0; else emptyApps">
+      <div *ngFor="let a of myApps; let last = last" class="timeline-item">
+        <div class="timeline-dot" [class]="a.status"></div>
+        <div class="timeline-line" *ngIf="!last"></div>
+        <div class="timeline-body">
+          <div style="font-weight:600;font-size:13px">{{ a.jobTitle }}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <span class="badge-status {{ statusClass(a.status) }}">{{ a.status }}</span>
+            <span style="font-size:12px;color:var(--text-muted)">{{ fmtDate(a.appliedAt) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyApps>
+      <div class="empty-state" style="padding:32px">
+        <i class="bi bi-send"></i>
+        <h5>No applications yet</h5>
+        <p>Start applying for roles that match your skills</p>
+        <a routerLink="/employee/jobs" class="btn btn-primary btn-sm" style="margin-top:12px">
+          Browse Jobs
+        </a>
+      </div>
+    </ng-template>
+  </div>
+</div>

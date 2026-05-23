@@ -1,0 +1,96 @@
+<div class="page-header">
+  <div>
+    <div class="breadcrumb-custom">
+      <a routerLink="/employee/dashboard">Dashboard</a><span>/</span>
+      <span class="active">My Applications</span>
+    </div>
+    <h1 class="page-title">My Applications</h1>
+    <p class="page-subtitle">Track your job application journey</p>
+  </div>
+  <a routerLink="/employee/jobs" class="btn btn-primary btn-md">
+    <i class="bi bi-plus-lg"></i> Apply for More
+  </a>
+</div>
+
+<!-- Filter tabs -->
+<div class="status-tabs" style="margin-bottom:20px">
+  <button class="status-tab" [class.active]="filterStatus===''" (click)="filterStatus=''; applyFilter()">
+    All <span class="tab-count">{{ applications.length }}</span>
+  </button>
+  <button class="status-tab" *ngFor="let s of statuses"
+    [class.active]="filterStatus===s"
+    (click)="filterStatus=s; applyFilter()">
+    {{ s | titlecase }} <span class="tab-count">{{ applications | filterByStatus:s }}</span>
+  </button>
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" style="text-align:center;padding:60px">
+  <div class="spinner" style="margin:0 auto"></div>
+</div>
+
+<!-- Empty -->
+<div *ngIf="!loading && filtered.length===0" class="empty-state" style="background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border)">
+  <i class="bi bi-send"></i>
+  <h5>No applications {{ filterStatus ? 'with status "'+filterStatus+'"' : 'yet' }}</h5>
+  <p>Start applying for roles that match your skills</p>
+  <a routerLink="/employee/jobs" class="btn btn-primary btn-sm" style="margin-top:12px">Browse Jobs</a>
+</div>
+
+<!-- Application Cards -->
+<div *ngIf="!loading" style="display:flex;flex-direction:column;gap:14px">
+  <div *ngFor="let a of filtered" class="app-card">
+    <!-- Status strip -->
+    <div class="app-status-strip" [class]="a.status"></div>
+
+    <div class="app-card-content">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <div class="status-icon-box" [class]="a.status">
+              <i class="bi {{ statusIcon(a.status) }}"></i>
+            </div>
+            <div>
+              <h5 style="margin:0;font-size:16px;font-weight:700">{{ a.jobTitle }}</h5>
+              <p style="margin:0;font-size:12px;color:var(--text-muted)">Applied {{ fmtDate(a.appliedAt) }}</p>
+            </div>
+          </div>
+          <span class="badge-status {{ statusClass(a.status) }}" style="margin-left:46px">{{ a.status | titlecase }}</span>
+        </div>
+
+        <!-- Progress pipeline -->
+        <div class="app-pipeline">
+          <div *ngFor="let step of ['applied','shortlisted','interview','hired']; let i=index" class="pipeline-step">
+            <div class="pipeline-dot"
+              [class.done]="isPastStep(a.status, step)"
+              [class.current]="a.status===step"
+              [class.rejected]="a.status==='rejected' && step==='interview'">
+            </div>
+            <div class="pipeline-line" *ngIf="i<3"></div>
+            <span class="pipeline-label">{{ step | titlecase }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+        <a [href]="a.resumePath" class="btn btn-ghost btn-sm" title="Download Resume">
+          <i class="bi bi-file-earmark-arrow-down"></i> Resume
+        </a>
+        <button class="btn btn-sm" style="background:#fee2e2;color:var(--danger);border:none"
+          (click)="confirmDelete(a)" *ngIf="a.status==='applied'">
+          <i class="bi bi-x-circle"></i> Withdraw
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [visible]="confirmVisible"
+  title="Withdraw Application?"
+  [message]="'Are you sure you want to withdraw from &quot;'+(appToDelete?.jobTitle||'')+'&quot;?'"
+  type="warning"
+  confirmLabel="Withdraw"
+  (confirmed)="deleteApp()"
+  (cancelled)="confirmVisible=false"
+></app-confirm-dialog>

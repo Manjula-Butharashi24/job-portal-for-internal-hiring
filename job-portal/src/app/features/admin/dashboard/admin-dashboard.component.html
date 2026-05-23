@@ -1,0 +1,121 @@
+<div class="page-header">
+  <div>
+    <div class="breadcrumb-custom"><i class="bi bi-house"></i><span>/</span><span class="active">Dashboard</span></div>
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p class="page-subtitle">System overview and user management</p>
+  </div>
+  <a routerLink="/admin/users" class="btn btn-primary btn-md">
+    <i class="bi bi-people"></i> Manage Users
+  </a>
+</div>
+
+<!-- Stats Row -->
+<div class="grid-4" style="margin-bottom:24px">
+  <div class="stat-card">
+    <div class="stat-icon"><i class="bi bi-people"></i></div>
+    <div class="stat-value">{{ userStats.total }}</div>
+    <div class="stat-label">Total Users</div>
+    <div class="stat-change up"><i class="bi bi-arrow-up"></i> {{ userStats.active }} active</div>
+  </div>
+  <div class="stat-card info">
+    <div class="stat-icon info"><i class="bi bi-briefcase"></i></div>
+    <div class="stat-value">{{ jobStats.total }}</div>
+    <div class="stat-label">Total Jobs</div>
+    <div class="stat-change up"><i class="bi bi-arrow-up"></i> {{ jobStats.active }} active</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="stat-icon warning"><i class="bi bi-file-person"></i></div>
+    <div class="stat-value">{{ appStats.total }}</div>
+    <div class="stat-label">Applications</div>
+    <div class="stat-change up"><i class="bi bi-arrow-up"></i> {{ appStats.hired }} hired</div>
+  </div>
+  <div class="stat-card success">
+    <div class="stat-icon success"><i class="bi bi-shield-check"></i></div>
+    <div class="stat-value">99.9%</div>
+    <div class="stat-label">System Uptime</div>
+    <div class="stat-change up"><i class="bi bi-check-circle"></i> All systems healthy</div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:24px">
+  <!-- User Growth Chart -->
+  <div class="card">
+    <div class="card-header-custom">
+      <h6 style="font-weight:600;margin:0">User Growth</h6>
+      <span class="badge-status badge-active">Last 6 months</span>
+    </div>
+    <div class="card-body-custom">
+      <div style="display:flex;align-items:flex-end;gap:10px;height:160px">
+        <div *ngFor="let d of growthData" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%">
+          <div style="flex:1;width:100%;display:flex;align-items:flex-end">
+            <div style="width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--primary),var(--accent));transition:height .6s ease"
+              [style.height.%]="(d.users/maxUsers)*100"></div>
+          </div>
+          <span style="font-size:10px;color:var(--text-muted);font-weight:500">{{ d.month }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Role Breakdown -->
+  <div class="card">
+    <div class="card-header-custom">
+      <h6 style="font-weight:600;margin:0">Role Distribution</h6>
+    </div>
+    <div class="card-body-custom">
+      <div *ngFor="let r of [
+        {label:'Employees', count:userStats.employees, total:userStats.total, cls:'var(--primary)'},
+        {label:'HR Managers', count:userStats.hrs, total:userStats.total, cls:'var(--info)'},
+        {label:'Admins', count:userStats.admins, total:userStats.total, cls:'var(--warning)'}
+      ]" style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
+          <span style="font-weight:500;color:var(--text-secondary)">{{ r.label }}</span>
+          <span style="font-weight:700">{{ r.count }}</span>
+        </div>
+        <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+          <div [style.width.%]="(r.count/r.total)*100" [style.background]="r.cls" style="height:100%;border-radius:4px;transition:width .8s ease"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- System Health + Recent Users -->
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header-custom">
+      <h6 style="font-weight:600;margin:0">System Health</h6>
+      <span class="badge-status badge-active">Operational</span>
+    </div>
+    <div class="card-body-custom" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div *ngFor="let h of systemHealth" class="health-card">
+        <i class="bi {{h.icon}}" style="font-size:20px;color:var(--primary);margin-bottom:8px;display:block"></i>
+        <div style="font-weight:700;font-size:18px">{{ h.value }}</div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ h.label }}</div>
+        <div style="margin-top:6px;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--success)">
+          <i class="bi bi-check-circle-fill"></i> Healthy
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header-custom">
+      <h6 style="font-weight:600;margin:0">Recent Users</h6>
+      <a routerLink="/admin/users" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <div style="padding:0">
+      <div *ngFor="let u of recentUsers" style="display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--border-light)">
+        <div class="avatar">{{ u.name[0] }}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13px">{{ u.name }}</div>
+          <div style="font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.email }}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span class="badge-status {{ roleClass(u.role) }}">{{ u.role }}</span>
+          <span class="badge-status {{ statusClass(u.status) }}" style="font-size:10px;padding:2px 6px">{{ u.status }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

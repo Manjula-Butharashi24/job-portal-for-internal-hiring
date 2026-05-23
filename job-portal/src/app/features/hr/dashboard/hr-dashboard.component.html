@@ -1,0 +1,141 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <div class="breadcrumb-custom">
+      <i class="bi bi-house"></i>
+      <span>/</span>
+      <span class="active">Dashboard</span>
+    </div>
+    <h1 class="page-title">HR Dashboard</h1>
+    <p class="page-subtitle">Monitor hiring activity and manage your talent pipeline</p>
+  </div>
+  <a routerLink="/hr/jobs" class="btn btn-primary btn-md">
+    <i class="bi bi-plus-lg"></i> Post New Job
+  </a>
+</div>
+
+<!-- Stat Cards -->
+<div class="grid-4" style="margin-bottom:24px">
+  <div class="stat-card">
+    <div class="stat-icon"><i class="bi bi-briefcase"></i></div>
+    <div class="stat-value">{{ jobStats.active }}</div>
+    <div class="stat-label">Active Jobs</div>
+    <div class="stat-change up"><i class="bi bi-arrow-up"></i> {{ jobStats.total }} total posted</div>
+  </div>
+  <div class="stat-card success">
+    <div class="stat-icon success"><i class="bi bi-file-person"></i></div>
+    <div class="stat-value">{{ appStats.total }}</div>
+    <div class="stat-label">Total Applications</div>
+    <div class="stat-change up"><i class="bi bi-arrow-up"></i> 18% this month</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="stat-icon warning"><i class="bi bi-clock-history"></i></div>
+    <div class="stat-value">{{ appStats.shortlisted }}</div>
+    <div class="stat-label">Shortlisted</div>
+    <div class="stat-change up"><i class="bi bi-arrow-up"></i> {{ appStats.interview }} in interview</div>
+  </div>
+  <div class="stat-card info">
+    <div class="stat-icon info"><i class="bi bi-trophy"></i></div>
+    <div class="stat-value">{{ appStats.hired }}</div>
+    <div class="stat-label">Hired</div>
+    <div class="stat-change up"><i class="bi bi-arrow-up"></i> 12% conversion rate</div>
+  </div>
+</div>
+
+<!-- Charts + Dept -->
+<div class="grid-2" style="margin-bottom:24px">
+  <!-- Trend Chart (CSS-based) -->
+  <div class="card">
+    <div class="card-header-custom">
+      <h6 style="font-weight:600; margin:0">Application Trends</h6>
+      <span class="badge-status badge-active">Last 6 months</span>
+    </div>
+    <div class="card-body-custom">
+      <div class="chart-bar-group">
+        <div *ngFor="let v of appsTrend; let i = index" class="chart-bar-col">
+          <div class="chart-bar-wrap">
+            <div class="chart-bar apps" [style.height.%]="(v/30)*100" [title]="v + ' applications'">
+              <span class="bar-tip">{{ v }}</span>
+            </div>
+            <div class="chart-bar hired" [style.height.%]="(hiredTrend[i]/30)*100" [title]="hiredTrend[i] + ' hired'">
+            </div>
+          </div>
+          <span class="chart-label">{{ trendLabels[i] }}</span>
+        </div>
+      </div>
+      <div class="chart-legend">
+        <span class="legend-dot apps"></span> Applications
+        <span class="legend-dot hired" style="margin-left:16px"></span> Hired
+      </div>
+    </div>
+  </div>
+
+  <!-- Dept Breakdown -->
+  <div class="card">
+    <div class="card-header-custom">
+      <h6 style="font-weight:600; margin:0">By Department</h6>
+    </div>
+    <div class="card-body-custom">
+      <div *ngFor="let d of deptData" class="dept-row">
+        <div class="dept-name">{{ d.dept }}</div>
+        <div class="dept-bar-wrap">
+          <div class="dept-bar" [style.width.%]="d.pct"></div>
+        </div>
+        <div class="dept-count">{{ d.count }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Jobs + Applications -->
+<div class="grid-2">
+  <!-- Recent Jobs -->
+  <div class="card">
+    <div class="card-header-custom">
+      <h6 style="font-weight:600; margin:0">Recent Job Posts</h6>
+      <a routerLink="/hr/jobs" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th>Apps</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let j of recentJobs">
+          <td>
+            <div style="font-weight:600; font-size:13px">{{ j.title }}</div>
+            <div style="font-size:12px; color:var(--text-muted)">{{ j.location }}</div>
+          </td>
+          <td style="font-size:13px">{{ j.department }}</td>
+          <td><span class="badge-status {{ jobStatusClass(j.status) }}">{{ j.status }}</span></td>
+          <td style="font-weight:600; color:var(--primary)">{{ j.applicationsCount }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Applications -->
+  <div class="card">
+    <div class="card-header-custom">
+      <h6 style="font-weight:600; margin:0">Recent Applications</h6>
+      <a routerLink="/hr/applications" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <div class="card-body-custom" style="padding:0">
+      <div *ngFor="let a of recentApps" class="app-row">
+        <div class="avatar">{{ a.employeeName[0] }}</div>
+        <div style="flex:1; min-width:0">
+          <div style="font-weight:600; font-size:13px">{{ a.employeeName }}</div>
+          <div style="font-size:12px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ a.jobTitle }}</div>
+        </div>
+        <div style="text-align:right">
+          <span class="badge-status {{ statusClass(a.status) }}">{{ a.status }}</span>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px">{{ fmtDate(a.appliedAt) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

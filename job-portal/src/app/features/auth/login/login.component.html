@@ -1,0 +1,113 @@
+<div class="login-page">
+
+  <!-- ── Left Panel ─────────────────────────────────────────── -->
+  <div class="login-left">
+
+    <div class="login-brand">
+      <div class="login-brand-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+      <span class="login-brand-name">NextHire</span>
+    </div>
+
+    <div class="login-hero">
+      <h2>Unlock your<br><em>next role.</em></h2>
+      <p class="login-tagline">Your internal career platform — connecting talent with opportunities that shape our future.</p>
+    </div>
+
+    <div class="login-features">
+      <div class="feature-item" *ngFor="let f of features">
+        <div class="feature-icon"><i class="bi {{ f.icon }}"></i></div>
+        <span>{{ f.text }}</span>
+      </div>
+    </div>
+
+    <!-- Decorative circles -->
+    <div class="deco-circle c1"></div>
+    <div class="deco-circle c2"></div>
+    <div class="deco-circle c3"></div>
+  </div>
+
+  <!-- ── Right Panel ────────────────────────────────────────── -->
+  <div class="login-right">
+    <div class="login-card">
+
+      <div class="login-header">
+        <div class="login-logo-mobile">
+          <div class="login-brand-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+          <span class="login-brand-name">NextHire</span>
+        </div>
+        <h3>Welcome back</h3>
+        <p>Sign in to access your portal</p>
+      </div>
+
+      <!-- Error alert -->
+      <div class="login-error" *ngIf="error">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>{{ error }}</span>
+      </div>
+
+      <!-- Login form -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-icon-wrap">
+            <i class="bi bi-envelope input-icon"></i>
+            <input
+              type="email"
+              class="form-control"
+              [class.is-invalid]="email.invalid && email.touched"
+              formControlName="email"
+              placeholder="yourname@company.com"
+              autocomplete="email"
+            >
+          </div>
+          <div class="field-error" *ngIf="email.touched">
+            <span *ngIf="email.errors?.['required']">Email is required</span>
+            <span *ngIf="email.errors?.['email']">Enter a valid email address</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-icon-wrap password-wrap">
+            <i class="bi bi-lock input-icon"></i>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              class="form-control"
+              [class.is-invalid]="password.invalid && password.touched"
+              formControlName="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            >
+            <button
+              type="button"
+              class="pw-toggle"
+              (click)="showPassword = !showPassword"
+              [title]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+            </button>
+          </div>
+          <div class="field-error" *ngIf="password.touched">
+            <span *ngIf="password.errors?.['required']">Password is required</span>
+            <span *ngIf="password.errors?.['minlength']">Minimum 6 characters</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg login-btn" [disabled]="loading">
+          <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
+          <span>{{ loading ? 'Signing in…' : 'Sign In' }}</span>
+          <i class="bi bi-arrow-right" *ngIf="!loading"></i>
+        </button>
+
+      </form>
+
+      <div class="login-footer">
+        <i class="bi bi-shield-lock"></i>
+        <span>Secured with JWT &amp; end-to-end encryption</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>

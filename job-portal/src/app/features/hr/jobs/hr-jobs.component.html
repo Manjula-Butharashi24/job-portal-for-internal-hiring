@@ -1,0 +1,227 @@
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <div class="breadcrumb-custom">
+      <a routerLink="/hr/dashboard">Dashboard</a>
+      <span>/</span><span class="active">Jobs</span>
+    </div>
+    <h1 class="page-title">Job Management</h1>
+    <p class="page-subtitle">{{ filteredJobs.length }} job postings found</p>
+  </div>
+  <button class="btn btn-primary btn-md" (click)="openCreate()">
+    <i class="bi bi-plus-lg"></i> Post New Job
+  </button>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom:20px">
+  <div class="card-body-custom" style="padding:16px 20px">
+    <div class="filter-bar">
+      <div class="search-bar" style="flex:1">
+        <i class="bi bi-search"></i>
+        <input class="form-control" [(ngModel)]="search" (ngModelChange)="applyFilters()" placeholder="Search jobs...">
+      </div>
+      <select class="form-select" style="width:160px" [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="closed">Closed</option>
+        <option value="draft">Draft</option>
+      </select>
+      <select class="form-select" style="width:180px" [(ngModel)]="filterDept" (ngModelChange)="applyFilters()">
+        <option value="">All Departments</option>
+        <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+      </select>
+      <button class="btn btn-ghost btn-md" (click)="search=''; filterStatus=''; filterDept=''; applyFilters()">
+        <i class="bi bi-x-circle"></i> Reset
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+  <div style="overflow-x:auto">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th (click)="sort('title')" class="sortable">
+            Job Title <i class="bi {{ sortIcon('title') }}"></i>
+          </th>
+          <th>Department</th>
+          <th>Location</th>
+          <th (click)="sort('status')" class="sortable">
+            Status <i class="bi {{ sortIcon('status') }}"></i>
+          </th>
+          <th>Applications</th>
+          <th (click)="sort('createdAt')" class="sortable">
+            Posted <i class="bi {{ sortIcon('createdAt') }}"></i>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading">
+          <td colspan="7" style="text-align:center; padding:40px; color:var(--text-muted)">
+            <div class="spinner" style="margin:0 auto"></div>
+          </td>
+        </tr>
+        <tr *ngIf="!loading && paginatedJobs.length === 0">
+          <td colspan="7">
+            <div class="empty-state">
+              <i class="bi bi-briefcase"></i>
+              <h5>No jobs found</h5>
+              <p>Try adjusting your filters or post a new job.</p>
+            </div>
+          </td>
+        </tr>
+        <tr *ngFor="let j of paginatedJobs">
+          <td>
+            <div class="job-title-cell">
+              <div class="job-dot" [class]="j.status"></div>
+              <div>
+                <div style="font-weight:600; font-size:13px">{{ j.title }}</div>
+                <div style="font-size:12px; color:var(--text-muted)">{{ j.type }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="font-size:13px">{{ j.department }}</td>
+          <td>
+            <span style="font-size:13px; color:var(--text-secondary)">
+              <i class="bi bi-geo-alt" style="margin-right:4px"></i>{{ j.location }}
+            </span>
+          </td>
+          <td><span class="badge-status {{ statusClass(j.status) }}">{{ j.status }}</span></td>
+          <td>
+            <span style="font-weight:700; color:var(--primary); font-size:14px">{{ j.applicationsCount }}</span>
+            <a [routerLink]="['/hr/applications']" style="font-size:12px; margin-left:6px; color:var(--text-muted)">view</a>
+          </td>
+          <td style="font-size:12px; color:var(--text-muted)">{{ fmtDate(j.createdAt) }}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-ghost btn-sm" (click)="openEdit(j)" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm" style="background:#fee2e2; color:var(--danger); border:none" (click)="confirmDelete(j)" title="Delete">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div style="padding:16px 20px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between">
+    <span style="font-size:13px; color:var(--text-muted)">
+      Showing {{ (page-1)*pageSize+1 }}–{{ [page*pageSize, filteredJobs.length] | min }} of {{ filteredJobs.length }}
+    </span>
+    <div class="pagination-custom">
+      <button class="page-btn" (click)="page=page-1" [disabled]="page===1"><i class="bi bi-chevron-left"></i></button>
+      <button class="page-btn" *ngFor="let p of pages" [class.active]="page===p" (click)="page=p">{{ p }}</button>
+      <button class="page-btn" (click)="page=page+1" [disabled]="page===totalPages"><i class="bi bi-chevron-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JOB MODAL
+     ============================================================ -->
+<div class="modal-backdrop-custom" *ngIf="showModal" (click)="showModal=false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-panel-header">
+      <h5>{{ editingJob ? 'Edit Job' : 'Post New Job' }}</h5>
+      <button class="btn-icon" (click)="showModal=false"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="modal-panel-body">
+      <form [formGroup]="form" (ngSubmit)="saveJob()">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Job Title *</label>
+            <input class="form-control" formControlName="title" placeholder="e.g. Senior Engineer">
+            <div class="field-error" *ngIf="form.get('title')?.invalid && form.get('title')?.touched">Required</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department *</label>
+            <input class="form-control" formControlName="department" placeholder="e.g. Engineering">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Location *</label>
+            <input class="form-control" formControlName="location" placeholder="e.g. Remote">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Employment Type</label>
+            <select class="form-select" formControlName="type">
+              <option value="full-time">Full-time</option>
+              <option value="part-time">Part-time</option>
+              <option value="contract">Contract</option>
+              <option value="remote">Remote</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Salary Range</label>
+            <input class="form-control" formControlName="salary" placeholder="e.g. $80k – $120k">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" formControlName="status">
+              <option value="active">Active</option>
+              <option value="draft">Draft</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Job Description * (min 50 chars)</label>
+          <textarea class="form-control" formControlName="description" rows="4" placeholder="Describe the role, responsibilities, and team..."></textarea>
+          <div class="field-error" *ngIf="form.get('description')?.invalid && form.get('description')?.touched">Required (min 50 characters)</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Requirements *</label>
+          <textarea class="form-control" formControlName="requirements" rows="3" placeholder="List key requirements, one per line..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Skills (press Enter or comma to add)</label>
+          <div class="skills-input-wrap">
+            <div class="skill-pills-area">
+              <span class="skill-pill" *ngFor="let s of skills; let i=index">
+                {{ s }} <button type="button" (click)="removeSkill(i)" style="background:none;border:none;cursor:pointer;padding:0 0 0 4px;color:var(--primary);font-size:12px">×</button>
+              </span>
+              <input
+                class="skill-input-inline"
+                [(ngModel)]="skillInput"
+                [ngModelOptions]="{standalone:true}"
+                (keydown)="onSkillKey($event)"
+                placeholder="{{ skills.length ? '' : 'Add skills...' }}"
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-panel-footer">
+          <button type="button" class="btn btn-ghost btn-md" (click)="showModal=false">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-md" [disabled]="saving">
+            <span class="spinner-border spinner-border-sm me-1" *ngIf="saving"></span>
+            {{ saving ? 'Saving...' : (editingJob ? 'Update Job' : 'Post Job') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+<app-confirm-dialog
+  [visible]="showConfirm"
+  title="Delete Job?"
+  [message]="'Remove &quot;' + (jobToDelete?.title || '') + '&quot;? This will soft-delete the posting.'"
+  type="danger"
+  confirmLabel="Delete"
+  (confirmed)="deleteJob()"
+  (cancelled)="showConfirm=false"
+></app-confirm-dialog>

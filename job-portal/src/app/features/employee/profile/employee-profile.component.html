@@ -1,0 +1,135 @@
+<div class="page-header">
+  <div>
+    <div class="breadcrumb-custom">
+      <a routerLink="/employee/dashboard">Dashboard</a><span>/</span>
+      <span class="active">My Profile</span>
+    </div>
+    <h1 class="page-title">My Profile</h1>
+    <p class="page-subtitle">Manage your info and skills</p>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns:280px 1fr; gap:24px; align-items:start">
+
+  <!-- Left -->
+  <div>
+    <div class="card card-body-custom" style="text-align:center; margin-bottom:16px">
+      <div class="avatar avatar-xl"
+           style="margin:0 auto 16px; background:linear-gradient(135deg,#6366f1,#0ea5e9)">
+        {{ initials }}
+      </div>
+      <h4 style="margin-bottom:4px">{{ user.name }}</h4>
+      <p style="color:var(--text-muted); font-size:13px; margin-bottom:12px">{{ user.email }}</p>
+      <span class="badge-status badge-employee" style="display:inline-flex; margin-bottom:16px">Employee</span>
+      <div class="section-divider"></div>
+      <div style="text-align:left">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; color:var(--text-secondary)">
+          <i class="bi bi-building" style="color:var(--primary)"></i> {{ user.department || 'Not set' }}
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; color:var(--text-secondary)">
+          <i class="bi bi-geo-alt" style="color:var(--primary)"></i> {{ user.location || 'Not set' }}
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-secondary)">
+          <i class="bi bi-telephone" style="color:var(--primary)"></i> {{ user.phone || 'Not set' }}
+        </div>
+      </div>
+      <div class="section-divider"></div>
+      <div style="text-align:left">
+        <p style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); margin-bottom:10px">Skills</p>
+        <div class="job-skills">
+          <span class="skill-pill" *ngFor="let s of user.skills">{{ s }}</span>
+          <span *ngIf="!user.skills?.length" style="font-size:13px; color:var(--text-muted)">No skills yet</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="card card-body-custom">
+      <h6 style="font-weight:700; margin-bottom:16px; font-size:13px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted)">Recent Activity</h6>
+      <div *ngFor="let a of appTimeline" style="display:flex; gap:10px; margin-bottom:14px; align-items:flex-start">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--primary);margin-top:5px;flex-shrink:0"></div>
+        <div>
+          <div style="font-size:13px; font-weight:500">{{ a.role }}</div>
+          <div style="display:flex; gap:8px; margin-top:4px">
+            <span class="badge-status {{ statusClass(a.status) }}" style="font-size:11px">{{ a.status }}</span>
+            <span style="font-size:12px; color:var(--text-muted)">{{ a.date }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div>
+    <!-- Tabs: Personal Info + Skills only (no resume) -->
+    <div class="profile-tabs">
+      <button [class.active]="activeTab==='profile'" (click)="activeTab='profile'">
+        <i class="bi bi-person"></i> Personal Info
+      </button>
+      <button [class.active]="activeTab==='skills'" (click)="activeTab='skills'">
+        <i class="bi bi-stars"></i> Skills
+      </button>
+    </div>
+
+    <!-- Personal Info -->
+    <div class="card card-body-custom" *ngIf="activeTab==='profile'">
+      <form [formGroup]="form" (ngSubmit)="saveProfile()">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input class="form-control" formControlName="name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-control" formControlName="email" type="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input class="form-control" formControlName="phone" placeholder="+1 555-0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input class="form-control" formControlName="location" placeholder="City, State">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department</label>
+            <input class="form-control" formControlName="department">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-md" [disabled]="saving">
+          <span class="spinner-border spinner-border-sm me-1" *ngIf="saving"></span>
+          {{ saving ? 'Saving…' : 'Save Changes' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Skills -->
+    <div class="card card-body-custom" *ngIf="activeTab==='skills'">
+      <h6 style="font-weight:600; margin-bottom:6px">Your Skills</h6>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px">
+        Add skills to improve job recommendations. Press <kbd>Enter</kbd> or <kbd>,</kbd> to add.
+      </p>
+      <div class="skills-input-wrap" style="margin-bottom:20px">
+        <div class="skill-pills-area">
+          <span class="skill-pill" *ngFor="let s of skills; let i = index">
+            {{ s }}
+            <button type="button" (click)="removeSkill(i)"
+              style="background:none;border:none;cursor:pointer;padding:0 0 0 5px;color:var(--primary);font-size:13px">×</button>
+          </span>
+          <input class="skill-input-inline"
+                 [(ngModel)]="skillInput"
+                 (keydown)="onSkillKey($event)"
+                 placeholder="{{ skills.length ? '' : 'e.g. Angular, Python, SQL…' }}">
+        </div>
+      </div>
+      <div *ngIf="skills.length === 0" class="empty-state" style="padding:16px 0">
+        <i class="bi bi-stars"></i>
+        <p>No skills yet. Start typing above!</p>
+      </div>
+      <button class="btn btn-primary btn-md" (click)="saveSkills()" [disabled]="saving">
+        <span class="spinner-border spinner-border-sm me-1" *ngIf="saving"></span>
+        {{ saving ? 'Saving…' : 'Save Skills' }}
+      </button>
+    </div>
+  </div>
+</div>

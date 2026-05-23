@@ -1,0 +1,95 @@
+.welcome-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1a56db 0%, #0ea5e9 100%);
+  border-radius: var(--radius-xl);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-banner::after {
+  content: '';
+  position: absolute;
+  right: -40px; top: -40px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,.08);
+  border-radius: 50%;
+}
+
+.welcome-left { display: flex; align-items: center; gap: 16px; }
+
+.welcome-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: #fff;
+  border: 2px solid rgba(255,255,255,.3);
+  flex-shrink: 0;
+}
+
+.welcome-greeting { font-size: 13px; opacity: .8; margin: 0; }
+.welcome-name { font-size: 22px; font-weight: 700; margin: 2px 0 4px; }
+.welcome-sub { font-size: 13px; opacity: .7; margin: 0; }
+
+/* Recommended job card */
+.rec-job-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  transition: var(--transition);
+  align-items: flex-start;
+}
+
+.rec-job-card:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.rec-job-icon {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+
+/* Timeline */
+.timeline-item {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.timeline-item:last-child { padding-bottom: 0; }
+
+.timeline-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 0 0 2px var(--border);
+}
+
+.timeline-dot.applied     { background: #3b82f6; }
+.timeline-dot.shortlisted { background: var(--warning); }
+.timeline-dot.interview   { background: var(--info); }
+.timeline-dot.hired       { background: var(--success); }
+.timeline-dot.rejected    { background: var(--danger); }
+
+.timeline-line {
+  position: absolute;
+  left: 5px; top: 16px;
+  width: 2px; height: calc(100% - 12px);
+  background: var(--border);
+}
+
+.timeline-body { flex: 1; }

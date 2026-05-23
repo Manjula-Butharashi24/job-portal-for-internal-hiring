@@ -1,0 +1,64 @@
+<header class="topbar">
+  <!-- Left -->
+  <div class="topbar-left">
+    <button class="topbar-btn" (click)="toggleSidebar.emit()" title="Toggle sidebar">
+      <i class="bi bi-list"></i>
+    </button>
+    <h1 class="topbar-title">{{ pageTitle }}</h1>
+  </div>
+
+  <!-- Right -->
+  <div class="topbar-right">
+    <!-- Theme Toggle -->
+    <button class="topbar-btn" (click)="toggleTheme()" title="Toggle dark mode">
+      <i class="bi" [class.bi-moon]="!isDark" [class.bi-sun]="isDark"></i>
+    </button>
+
+    <!-- Notifications -->
+    <div class="notif-wrapper" style="position:relative">
+      <button class="topbar-btn notif-btn" (click)="showNotifDropdown=!showNotifDropdown" style="position:relative">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+
+      <div class="notif-dropdown" *ngIf="showNotifDropdown">
+        <div class="notif-header">
+          <span>Notifications</span>
+          <button class="btn-text" (click)="markAllRead()">Mark all read</button>
+        </div>
+        <div class="notif-list">
+          <div *ngFor="let n of notifications" class="notif-item"
+            [class.unread]="!n.read" (click)="markRead(n.id)">
+            <div class="notif-icon" [class]="'notif-icon-'+n.type">
+              <i class="bi"
+                [class.bi-check-circle]="n.type==='success'"
+                [class.bi-info-circle]="n.type==='info'"
+                [class.bi-exclamation-triangle]="n.type==='warning'"></i>
+            </div>
+            <div class="notif-body">
+              <div class="notif-title">{{ n.title }}</div>
+              <div class="notif-msg">{{ n.message }}</div>
+              <div class="notif-time">{{ timeAgo(n.createdAt) }}</div>
+            </div>
+          </div>
+          <div *ngIf="notifications.length === 0" class="notif-empty">
+            <i class="bi bi-bell-slash"></i>
+            <p>No notifications</p>
+          </div>
+        </div>
+        <div style="padding:10px 16px;border-top:1px solid var(--border);text-align:center">
+          <button class="btn-text" (click)="showNotifDropdown=false">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- User -->
+    <div class="topbar-user">
+      <div class="topbar-avatar">{{ initials }}</div>
+      <div class="topbar-user-info d-none d-md-block">
+        <div class="topbar-user-name">{{ user?.name }}</div>
+        <div class="topbar-user-role">{{ user?.role | titlecase }}</div>
+      </div>
+    </div>
+  </div>
+</header>

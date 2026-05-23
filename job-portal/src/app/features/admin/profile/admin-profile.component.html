@@ -1,0 +1,125 @@
+<div class="page-header">
+  <div>
+    <div class="breadcrumb-custom">
+      <a routerLink="/admin/dashboard">Dashboard</a><span>/</span>
+      <span class="active">Profile</span>
+    </div>
+    <h1 class="page-title">Admin Profile</h1>
+    <p class="page-subtitle">Account settings and system information</p>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns:280px 1fr; gap:24px; align-items:start">
+
+  <!-- Left -->
+  <div>
+    <div class="card card-body-custom" style="text-align:center; margin-bottom:16px">
+      <div class="avatar avatar-xl"
+           style="margin:0 auto 16px; background:linear-gradient(135deg,#9d174d,#ec4899)">{{ initials }}</div>
+      <h4 style="margin-bottom:4px">{{ user.name }}</h4>
+      <p style="color:var(--text-muted); font-size:13px; margin-bottom:12px">{{ user.email }}</p>
+      <span class="badge-status badge-admin" style="display:inline-flex; margin-bottom:16px">Administrator</span>
+      <div class="section-divider"></div>
+      <div style="text-align:left">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; color:var(--text-secondary)">
+          <i class="bi bi-shield-check" style="color:#9d174d"></i> Full System Access
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; color:var(--text-secondary)">
+          <i class="bi bi-geo-alt" style="color:#9d174d"></i> {{ user.location || 'Not set' }}
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-secondary)">
+          <i class="bi bi-telephone" style="color:#9d174d"></i> {{ user.phone || 'Not set' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="card card-body-custom">
+      <h6 style="font-weight:700; margin-bottom:16px; font-size:13px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted)">System Info</h6>
+      <div *ngFor="let s of systemInfo"
+           style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light); font-size:13px">
+        <span style="color:var(--text-muted)">{{ s.label }}</span>
+        <span style="font-weight:600; color:var(--text-primary)">{{ s.value }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div>
+    <!-- Tabs: Personal Info + Activity + Security (NO resume) -->
+    <div class="profile-tabs">
+      <button [class.active]="activeTab==='profile'"  (click)="activeTab='profile'">
+        <i class="bi bi-person"></i> Personal Info
+      </button>
+      <button [class.active]="activeTab==='activity'" (click)="activeTab='activity'">
+        <i class="bi bi-clock-history"></i> Recent Activity
+      </button>
+      <button [class.active]="activeTab==='security'" (click)="activeTab='security'">
+        <i class="bi bi-shield-lock"></i> Security
+      </button>
+    </div>
+
+    <!-- Personal Info -->
+    <div class="card card-body-custom" *ngIf="activeTab==='profile'">
+      <form [formGroup]="form" (ngSubmit)="saveProfile()">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input class="form-control" formControlName="name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input class="form-control" formControlName="email" type="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input class="form-control" formControlName="phone" placeholder="+1 555-0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input class="form-control" formControlName="location" placeholder="City, State">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-md" [disabled]="saving">
+          <span class="spinner-border spinner-border-sm me-1" *ngIf="saving"></span>
+          {{ saving ? 'Saving…' : 'Save Changes' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card card-body-custom" *ngIf="activeTab==='activity'">
+      <h6 style="font-weight:700; margin-bottom:20px">Admin Activity Log</h6>
+      <div *ngFor="let a of recentActivity" style="display:flex; gap:14px; margin-bottom:20px; align-items:flex-start">
+        <div style="width:36px;height:36px;border-radius:var(--radius-md);background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="bi {{ a.icon }}"></i>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:14px; font-weight:500">{{ a.action }}</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px">{{ a.time }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security -->
+    <div class="card card-body-custom" *ngIf="activeTab==='security'">
+      <h6 style="font-weight:700; margin-bottom:20px">Security Settings</h6>
+      <div *ngFor="let item of [
+        {title:'Two-Factor Authentication', desc:'Protect your account with 2FA',            enabled:true},
+        {title:'Login Notifications',       desc:'Get alerts for new sign-ins',              enabled:true},
+        {title:'Session Timeout',           desc:'Auto-logout after 30 min of inactivity',   enabled:false}
+      ]" style="display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border-light)">
+        <div>
+          <div style="font-weight:600; font-size:14px">{{ item.title }}</div>
+          <div style="font-size:13px; color:var(--text-muted); margin-top:2px">{{ item.desc }}</div>
+        </div>
+        <div class="toggle-switch" [class.on]="item.enabled">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+      <div style="margin-top:24px">
+        <button class="btn btn-ghost btn-md"><i class="bi bi-key"></i> Change Password</button>
+      </div>
+    </div>
+  </div>
+</div>
